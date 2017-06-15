@@ -1,2 +1,2 @@
 # nofft.js
-Javascript library for creating MIDI-responsive visuals.
+Javascript library for MIDI-responsive visuals.
