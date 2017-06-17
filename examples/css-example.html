@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>nofft.js - CSS Example</title>
+	<style>
+		body { font-family:monospace; margin:25px; }
+		div.top { float:left; margin-right:10px; }
+		div.envBar { background-color:RED; }
+		div.containerBar { height:5px; width:250px; background-color:#DDDDFF; border:1px solid BLUE; margin-top:-1px; }
+		input[type=range] { height:12px; }
+	</style>
+	<script src="../src/nofft.js"></script>
+	<script src="../lib/tween.js"></script>	
+</head>
+
+<body>
+
+	<b>nofft.js</b><br/>
+	 
+	<!-- *** CONTROLS ***************************************************** -->
+	 
+	Attack &nbsp;(or MIDI CC 73): 
+	<input type="range" min="0" max="1" step="0.001" value="0" onChange="nofft.anyChannel.attack=this.value;"></input><br/>
+	 
+	Release (or MIDI CC 72): 
+	<input type="range" min="0" max="1" step="0.001" value="0.5" onChange="nofft.anyChannel.release=this.value;"></input><br/>
+	 
+	<input type="checkbox" name="ignoreNoteOff" onClick="nofft.ignoreNoteOff=this.checked;">Ignore Note Offs</input><br/><br/>
+	
+	<!-- *** ENVELOPE BARS ************************************************ -->
+	
+	<div class="top">
+		<script>	
+			for (var i=0;i<128;i++)
+			{
+				document.write("<div class='containerBar'><div class='envBar' id='slider"+i+"'>&nbsp;</div></div>");
+			}
+		</script>
+	</div>
+	
+	<!-- *** TEXT READ-OUT ************************************************ -->
+	
+	<div id="readOut" class="top"></div>
+						
+	<!-- ****************************************************************** -->						
+						
+	<script>
+		var readOutDiv = document.getElementById("readOut");
+
+		function writeToDisplay(message)
+		{			
+			readOutDiv.innerHTML = (message + "<br/>" + readOutDiv.innerHTML).substring(0,1000);
+		}
+		
+		var nofft = new NOFFT();
+				
+		nofft.anyChannel.noteOn = function(chan,note,vel)
+		{
+			writeToDisplay("NOTE ON: "+chan+"/"+note+"/"+vel.toFixed(3));
+		}
+
+		nofft.anyChannel.noteOff = function(chan,note)
+		{
+			writeToDisplay("NOTE OFF: "+chan+"/"+note);
+		}
+		
+		nofft.anyChannel.controller = function(chan,cnum,cval)
+		{
+			writeToDisplay("CONTROL: "+chan+"/"+cnum+"/"+cval.toFixed(3));
+		}
+		
+		function render() 
+		{						
+			requestAnimationFrame(render);							
+			nofft.update();
+			
+			for (var i=0;i<128;i++)
+			{
+				var noteBar = document.getElementById("slider"+i);
+				var noteEnvelopeValue = nofft.anyChannel.envelope[i];
+				var noteBarWidth = noteEnvelopeValue * 100;
+				noteBar.style.width = noteBarWidth + "%";
+			}
+		}										
+		
+		nofft.init();			
+		render();
+		
+	</script>
+	
+</body>
+</html>
