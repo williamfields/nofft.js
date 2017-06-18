@@ -45,15 +45,18 @@ var NOFFT = function()
 			attack: 0.0,
 			release: 0.5,
 			mod: 0,
-			envelope: [],
+			note: [],
+			controller: [],
+			lastController: 0,  // Last touched controller number
+			anyController: 0, // Last touched controller value
 			lastNote: 0,
-			anyEnvelope: 0,
+			anyNote: 0,
 			tweens: [],
-			noteOnInternal: function(chan,note,vel,trueChannel)
+			onNoteOnInternal: function(chan,note,vel,trueChannel)
 			{													
 				this.lastNote = note;
 			
-				// If envelope is already running, then stop it.
+				// If tween is already running, then stop it.
 				if (this.tweens[note] !== undefined)  
 				{									
 					this.tweens[note].stop();
@@ -72,9 +75,9 @@ var NOFFT = function()
 						{	
 							if (note == self.channel[chan].lastNote) 
 							{ 
-								self.channel[chan].anyEnvelope = pos.env; 
+								self.channel[chan].anyNote = pos.env; 
 							} 
-							self.channel[chan].envelope[note] = pos.env; 
+							self.channel[chan].note[note] = pos.env; 
 						},			
 						mode:self.attackEasing
 					});			
@@ -90,9 +93,9 @@ var NOFFT = function()
 						{	
 							if (note == self.channel[chan].lastNote) 
 							{ 
-								self.channel[chan].anyEnvelope = pos2.env; 
+								self.channel[chan].anyNote = pos2.env; 
 							} 
-							self.channel[chan].envelope[note] = pos2.env; 
+							self.channel[chan].note[note] = pos2.env; 
 						},		
 						mode:self.releaseEasing,
 						start:false,
@@ -115,27 +118,27 @@ var NOFFT = function()
 						{	
 							if (note == self.channel[chan].lastNote) 
 							{ 
-								self.channel[chan].anyEnvelope = pos.env; 
+								self.channel[chan].anyNote = pos.env; 
 							} 
-							self.channel[chan].envelope[note] = pos.env; 
+							self.channel[chan].note[note] = pos.env; 
 						},
 						mode:self.attackEasing
 					});					
 				}
 				
 				// Call user-defined note-on function
-				this.noteOn(trueChannel,note,vel); 
+				this.onNoteOn(trueChannel,note,vel); 
 			},
-			noteOffInternal: function(chan,note,trueChannel) 
+			onNoteOffInternal: function(chan,note,trueChannel) 
 			{							
-				// If envelope is already running, then stop it.
+				// If tween is already running, then stop it.
 				if (this.tweens[note] !== undefined) 
 				{			
 					this.tweens[note].stop();			
 				}
 
-				// Create new envelope
-				var pos = { env:self.channel[chan].envelope[note] };
+				// Create new tween
+				var pos = { env:self.channel[chan].note[note] };
 				this.tweens[note] = tween(
 				{ 
 					from:pos,
@@ -143,32 +146,42 @@ var NOFFT = function()
 					speed:self.maximumRelease*Math.pow(this.release,self.releaseCurve),
 					update:function() 
 					{								
-						self.channel[chan].envelope[note] = pos.env; 
+						if (note == self.channel[chan].lastNote) 
+						{ 
+							self.channel[chan].anyNote = pos.env; 
+						} 
+						self.channel[chan].note[note] = pos.env; 
 					},				
 					mode:self.releaseEasing
 				});		
 				
 				// Call user-defined note-off function
-				this.noteOff(trueChannel,note); 
+				this.onNoteOff(trueChannel,note); 
 			},
-			controllerInternal: function(chan,cnum,cval,trueChannel) 
+			onControllerInternal: function(chan,cnum,cval,trueChannel) 
 			{ 
 				if (cnum == self.attackController) { this.attack = cval; }
 				else if (cnum == self.releaseController) { this.release = cval; }
 				else if (cnum == self.modController) { this.mod = cval; }
 
+				this.lastController = cnum;
+				this.anyController = cval; 
+
+				this.controller[cnum] = cval;
+				
 				// Call user-defined controller function
-				this.controller(trueChannel,cnum,cval); 
+				this.onController(trueChannel,cnum,cval); 
 			},			
-			noteOn: function(chan,note,vel) { }, // User defined
-			noteOff: function(chan,note) { }, // User defined
-			controller: function(chan,cnum,cval) { },  // User defined
+			onNoteOn: function(chan,note,vel) { }, // User defined
+			onNoteOff: function(chan,note) { }, // User defined
+			onController: function(chan,cnum,cval) { },  // User defined
 		};
 		
-		// Init envelope values
+		// Init note and controller values
 		for (var i=0; i<128; i++)
 		{
-			this.channel[c].envelope[i] = 0;
+			this.channel[c].note[i] = 0;
+			this.channel[c].controller[i] = 0;					
 		}
 	}	
 	
@@ -185,7 +198,7 @@ var NOFFT = function()
 		else 
 		{			
 			navigator.requestMIDIAccess({ sysex:false }).then(onMidiAccess, errorCallback);	
-		}							
+		}										
 	};
 		
 		
@@ -229,22 +242,22 @@ var NOFFT = function()
 			if (velocity > 0)	
 			{						
 				// Note on
-				self.channel[chan].noteOnInternal(chan, note, velocity/127, chan);
-				self.anyChannel.noteOnInternal(ANY_CHANNEL, note, velocity/127, chan);
+				self.channel[chan].onNoteOnInternal(chan, note, velocity/127, chan);
+				self.anyChannel.onNoteOnInternal(ANY_CHANNEL, note, velocity/127, chan);
 			}	
 			else 
 			{				
 				// Note off				
-				self.channel[chan].noteOffInternal(chan, note, chan);
-				self.anyChannel.noteOffInternal(ANY_CHANNEL, note, chan);
+				self.channel[chan].onNoteOffInternal(chan, note, chan);
+				self.anyChannel.onNoteOffInternal(ANY_CHANNEL, note, chan);
 			}
 		}
 		else if (status == 176)  // Controller event
 		{							
 			var controllerNumber = msg.data[1];
 			var controllerValue = msg.data[2];								
-			self.channel[chan].controllerInternal(chan, controllerNumber, controllerValue/127, chan);
-			self.anyChannel.controllerInternal(ANY_CHANNEL, controllerNumber, controllerValue/127, chan);
+			self.channel[chan].onControllerInternal(chan, controllerNumber, controllerValue/127, chan);
+			self.anyChannel.onControllerInternal(ANY_CHANNEL, controllerNumber, controllerValue/127, chan);
 		}						
 	}				
 	

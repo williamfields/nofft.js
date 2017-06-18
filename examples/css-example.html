@@ -6,8 +6,8 @@
 	<style>
 		body { font-family:monospace; margin:25px; }
 		div.top { float:left; margin-right:10px; }
-		div.envBar { background-color:RED; }
-		div.containerBar { height:5px; width:250px; background-color:#DDDDFF; border:1px solid BLUE; margin-top:-1px; }
+		div.envBar { height:100%; background-color:RED; }
+		div.containerBar { height:4px; width:200px; background-color:#DDDDFF; border:1px solid BLUE; margin-top:-1px; }
 		input[type=range] { height:12px; }
 	</style>
 	<script src="../src/nofft.js"></script>
@@ -28,20 +28,39 @@
 	 
 	<input type="checkbox" name="ignoreNoteOff" onClick="nofft.ignoreNoteOff=this.checked;">Ignore Note Offs</input><br/><br/>
 	
-	<!-- *** ENVELOPE BARS ************************************************ -->
+	<!-- *** NOTE BARS ************************************************ -->
 	
 	<div class="top">
+		<b>NOTES</b>
 		<script>	
 			for (var i=0;i<128;i++)
 			{
-				document.write("<div class='containerBar'><div class='envBar' id='slider"+i+"'>&nbsp;</div></div>");
+				document.write("<div class='containerBar'><div class='envBar' id='note"+i+"'>&nbsp;</div></div>");
 			}
 		</script>
+		<br/>
+		<div class='containerBar'><div class='envBar' id='noteAny'>&nbsp;</div></div>
 	</div>
+
+	<!-- *** CONTROLLER BARS ************************************************ -->
+	
+	<div class="top">
+		<b>CONTROLLERS</b>
+		<script>	
+			for (var i=0;i<128;i++)
+			{
+				document.write("<div class='containerBar'><div class='envBar' id='controller"+i+"'>&nbsp;</div></div>");
+			}
+		</script>
+		<br/>
+		<div class='containerBar'><div class='envBar' id='controllerAny'>&nbsp;</div></div>
+	</div>
+
 	
 	<!-- *** TEXT READ-OUT ************************************************ -->
 	
-	<div id="readOut" class="top"></div>
+	<B>EVENTS</b><br/>
+	<div id="readOut" class="top" style="line-height:1em; max-height:49em; overflow:hidden; "></div>
 						
 	<!-- ****************************************************************** -->						
 						
@@ -50,22 +69,22 @@
 
 		function writeToDisplay(message)
 		{			
-			readOutDiv.innerHTML = (message + "<br/>" + readOutDiv.innerHTML).substring(0,1000);
+			readOutDiv.innerHTML = (message + "<br/>" + readOutDiv.innerHTML).substring(0,10000);
 		}
 		
 		var nofft = new NOFFT();
 				
-		nofft.anyChannel.noteOn = function(chan,note,vel)
+		nofft.anyChannel.onNoteOn = function(chan,note,vel)
 		{
 			writeToDisplay("NOTE ON: "+chan+"/"+note+"/"+vel.toFixed(3));
 		}
 
-		nofft.anyChannel.noteOff = function(chan,note)
+		nofft.anyChannel.onNoteOff = function(chan,note)
 		{
 			writeToDisplay("NOTE OFF: "+chan+"/"+note);
 		}
 		
-		nofft.anyChannel.controller = function(chan,cnum,cval)
+		nofft.anyChannel.onController = function(chan,cnum,cval)
 		{
 			writeToDisplay("CONTROL: "+chan+"/"+cnum+"/"+cval.toFixed(3));
 		}
@@ -77,11 +96,26 @@
 			
 			for (var i=0;i<128;i++)
 			{
-				var noteBar = document.getElementById("slider"+i);
-				var noteEnvelopeValue = nofft.anyChannel.envelope[i];
-				var noteBarWidth = noteEnvelopeValue * 100;
+				var noteBar = document.getElementById("note"+i);
+				var noteValue = nofft.anyChannel.note[i];
+				var noteBarWidth = noteValue * 100;
 				noteBar.style.width = noteBarWidth + "%";
+				
+				var controllerBar = document.getElementById("controller"+i);
+				var controllerValue = nofft.anyChannel.controller[i];
+				var controllerBarWidth = controllerValue * 100;				
+				controllerBar.style.width = controllerBarWidth + "%";										
 			}
+			
+			var noteBar = document.getElementById("noteAny");
+			var noteValue = nofft.anyChannel.anyNote;
+			var noteBarWidth = noteValue * 100;
+			noteBar.style.width = noteBarWidth + "%";
+				
+			var controllerBar = document.getElementById("controllerAny");
+			var controllerValue = nofft.anyChannel.anyController;
+			var controllerBarWidth = controllerValue * 100;				
+			controllerBar.style.width = controllerBarWidth + "%";							
 		}										
 		
 		nofft.init();			
