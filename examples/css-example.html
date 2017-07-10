@@ -118,8 +118,14 @@
 			controllerBar.style.width = controllerBarWidth + "%";							
 		}										
 		
-		nofft.init();			
-		render();
+		if (!nofft.init())
+		{
+			alert("MIDI is not supported by your browser. Please try Chrome or Opera.");
+		}
+		else
+		{
+			render();
+		}
 		
 	</script>
 	

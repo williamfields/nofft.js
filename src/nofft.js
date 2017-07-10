@@ -192,12 +192,14 @@ var NOFFT = function()
 	this.init = function()
 	{			
 		if (!navigator.requestMIDIAccess) 
-		{		
-			console.log("Browser does not support WebMIDI!");				
+		{					
+			console.log("Browser does not support WebMIDI!");					
+			return false;
 		} 
 		else 
 		{			
 			navigator.requestMIDIAccess({ sysex:false }).then(onMidiAccess, errorCallback);	
+			return true;
 		}										
 	};
 		
