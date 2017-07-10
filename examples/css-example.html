@@ -74,7 +74,7 @@
 		
 		var nofft = new NOFFT();
 				
-		nofft.anyChannel.onNoteOn = function(chan,note,vel)
+		nofft.anyChannel.onNote = function(chan,note,vel)
 		{
 			writeToDisplay("NOTE ON: "+chan+"/"+note+"/"+vel.toFixed(3));
 		}

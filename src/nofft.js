@@ -52,7 +52,7 @@ var NOFFT = function()
 			lastNote: 0,
 			anyNote: 0,
 			tweens: [],
-			onNoteOnInternal: function(chan,note,vel,trueChannel)
+			onNoteInternal: function(chan,note,vel,trueChannel)
 			{													
 				this.lastNote = note;
 			
@@ -127,7 +127,7 @@ var NOFFT = function()
 				}
 				
 				// Call user-defined note-on function
-				this.onNoteOn(trueChannel,note,vel); 
+				this.onNote(trueChannel,note,vel); 
 			},
 			onNoteOffInternal: function(chan,note,trueChannel) 
 			{							
@@ -172,7 +172,7 @@ var NOFFT = function()
 				// Call user-defined controller function
 				this.onController(trueChannel,cnum,cval); 
 			},			
-			onNoteOn: function(chan,note,vel) { }, // User defined
+			onNote: function(chan,note,vel) { }, // User defined
 			onNoteOff: function(chan,note) { }, // User defined
 			onController: function(chan,cnum,cval) { },  // User defined
 		};
@@ -244,8 +244,8 @@ var NOFFT = function()
 			if (velocity > 0)	
 			{						
 				// Note on
-				self.channel[chan].onNoteOnInternal(chan, note, velocity/127, chan);
-				self.anyChannel.onNoteOnInternal(ANY_CHANNEL, note, velocity/127, chan);
+				self.channel[chan].onNoteInternal(chan, note, velocity/127, chan);
+				self.anyChannel.onNoteInternal(ANY_CHANNEL, note, velocity/127, chan);
 			}	
 			else 
 			{				
