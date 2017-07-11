@@ -1,6 +1,8 @@
 # nofft.js
 nofft.js is a Javascript library that makes it *super easy* to create MIDI-responsive visuals, instruments, games, and art.
 
+It can be used to easily map the envelope of a sound to the envelope of a corresponding visual event.
+
 To get an idea of what it can do, open this live example and bang on your MIDI controller: https://billcf.github.io/nofft/examples/css-example.html
 
 ## Quick Start
@@ -33,7 +35,7 @@ function render()
 		
 ## MIDI Notes
 
-You can respond to note events on a particular channel, or if you don't care about the channel, you can opt to respond to events coming in on any channel. 
+You can respond to note events on a particular channel, or if you don't care about the channel, you can opt to respond to events coming in on *any* channel. 
 
 
 ### Examples
@@ -41,13 +43,19 @@ You can respond to note events on a particular channel, or if you don't care abo
 To respond to the **start** of a note on **any channel**:
 
 ```javascript
-nofft.anyChannel.onNote = function(channel,note,velocity) { /* do stuff */ };
+nofft.anyChannel.onNote = function(channel,note,velocity) 
+{ 
+	console.log("Just received a note ON message for note "+note+" with velocity "+velocity+" on channel "+channel);
+};
 ```
 
 To respond to the **end** of a note on **channel 1**:
 
 ```javascript
-nofft.channel[1].onNoteOff = function(channel,note,velocity) { /* do stuff */ };
+nofft.channel[1].onNoteOff = function(channel,note) 
+{
+	console.log("Just received a note OFF message for note "+note+" on channel "+channel);
+};
 ```
 
 ## Envelopes
@@ -107,7 +115,10 @@ MIDI controllers are also supported.
 To respond to a MIDI controller event on any channel:
 
 ```javascript
-nofft.anyChannel.onController = function(channel,controlNumber,controlValue) { /* do stuff */ };
+nofft.anyChannel.onController = function(channel,controlNumber,controlValue) 
+{
+	console.log("Just received a controller message for controller number "+controlNumber+" with value "+controlValue+" on channel "+channel);
+};
 ```
 
 To get the current value of controller 74 on channel 1:
