@@ -1,7 +1,7 @@
 # nofft.js
 nofft.js is a Javascript library that makes it *super easy* to create MIDI-responsive visuals, instruments, games, and art.
 
-To get an idea of what it can do, open this live example and bang on your MIDI controller: http://williamfields.com/nofft.js/examples/css-example.html
+To get an idea of what it can do, open this live example and bang on your MIDI controller: https://billcf.github.io/nofft/examples/css-example.html
 
 ## Quick Start
 
@@ -12,12 +12,25 @@ To include it in your application:
 <script src="../lib/tween.js"></script>
 ```
 
-To initialize it:
+Initialize:
 
 ```javascript
 nofft.init();
 ```
 
+...and then make sure to update it inside your render loop:
+
+```javascript
+function render() 
+{								
+	nofft.update();
+	
+	// do stuff
+	
+	requestAnimationFrame(render);					
+}										
+```
+		
 ## MIDI Notes
 
 You can respond to note events on a particular channel, or if you don't care about the channel, you can opt to respond to events coming in on any channel. 

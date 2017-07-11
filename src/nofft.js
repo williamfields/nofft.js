@@ -13,7 +13,6 @@ var NOFFT = function()
 	this.ignoreNoteOff = false;		
 	
 	// Controllers
-	this.modController = 1;
 	this.releaseController = 72;
 	this.attackController = 73;
 	
@@ -44,7 +43,6 @@ var NOFFT = function()
 		{		
 			attack: 0.0,
 			release: 0.5,
-			mod: 0,
 			note: [],
 			controller: [],
 			lastController: 0,  // Last touched controller number
@@ -162,7 +160,6 @@ var NOFFT = function()
 			{ 
 				if (cnum == self.attackController) { this.attack = cval; }
 				else if (cnum == self.releaseController) { this.release = cval; }
-				else if (cnum == self.modController) { this.mod = cval; }
 
 				this.lastController = cnum;
 				this.anyController = cval; 
