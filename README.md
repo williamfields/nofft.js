@@ -1,7 +1,9 @@
 # nofft.js
 nofft.js is a Javascript library that makes it *super easy* to create MIDI-responsive visuals, instruments, games, and art.
 
-It can be used to easily map the envelope of a sound to the envelope of a corresponding visual event.
+It can be used to easily map the envelope of a sound to the envelope of a corresponding visual event, like this:
+
+![alt text](https://billcf.github.io/nofft/nofft.gif "nofft demo")
 
 To get an idea of what it can do, open this live example and bang on your MIDI controller: https://billcf.github.io/nofft/examples/css-example.html
 
